@@ -1,0 +1,42 @@
+package main
+
+#include_file "core/std/wasi"
+
+use package core
+use package core_file
+
+main :: proc (args: [] cstring) {
+    contents := file_get_contents("input/day2.txt");
+    contents_orig := contents;
+    defer cfree(contents_orig.data);
+
+    valid := 0;
+    lo : u32;
+    hi : u32;
+    ch : u8;
+    pw : string = "";
+
+    while true {
+        string_read_u32(^contents, ^lo);
+        if lo == 0 do break;
+        string_discard_chars(^contents);
+        string_read_u32(^contents, ^hi);
+        string_discard_chars(^contents);
+        string_read_char(^contents, ^ch);
+        string_discard_chars(^contents, 2);
+        string_read_line(^contents, ^pw);
+
+        // Part 1
+        // count := 0;
+        // for c: pw do if c == ch do count += 1;
+        // if count >= lo && count <= hi do valid += 1;
+
+        // Part 2
+        count := 0;
+        if pw[lo - 1] == ch do count += 1;
+        if pw[hi - 1] == ch do count += 1;
+        if count == 1 do valid += 1;
+    }
+
+    printf("Number valid: %i\n", valid);
+}

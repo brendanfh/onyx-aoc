@@ -1,7 +1,6 @@
 #include_file "core/std/wasi"
 
 use package core
-use package core_file
 
 Point :: struct {
     x : i32;
@@ -20,25 +19,25 @@ line_interp_at :: proc (use li: LineInterp, t: i32) -> Point {
 }
 
 main :: proc (args: [] cstring) {
-    contents := file_get_contents("input/day3.txt");
+    contents := file.get_contents("input/day3.txt");
     contents_orig := contents;
     defer cfree(contents_orig.data);
 
     forest: [..] u8;
-    array_init(^forest, 1024);
-    defer array_free(^forest);
+    array.init(^forest, 1024);
+    defer array.free(^forest);
 
     width := 0;
     height := 0;
     while true {
         line: string = "";
-        string_read_line(^contents, ^line);
+        str.read_line(^contents, ^line);
         if line.count == 0 do break;
 
         width = line.count;
         height = height + 1;
 
-        for ch: line do array_push(^forest, ch);
+        for ch: line do array.push(^forest, ch);
     }
 
     lis : [5] LineInterp;

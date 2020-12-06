@@ -3,10 +3,9 @@ package main
 #include_file "core/std/wasi"
 
 use package core
-use package core_file
 
 main :: proc (args: [] cstring) {
-    contents := file_get_contents("input/day2.txt");
+    contents := file.get_contents("input/day2.txt");
     contents_orig := contents;
     defer cfree(contents_orig.data);
 
@@ -17,14 +16,14 @@ main :: proc (args: [] cstring) {
     pw : string = "";
 
     while true {
-        string_read_u32(^contents, ^lo);
+        str.read_u32(^contents, ^lo);
         if lo == 0 do break;
-        string_discard_chars(^contents);
-        string_read_u32(^contents, ^hi);
-        string_discard_chars(^contents);
-        string_read_char(^contents, ^ch);
-        string_discard_chars(^contents, 2);
-        string_read_line(^contents, ^pw);
+        str.discard_chars(^contents);
+        str.read_u32(^contents, ^hi);
+        str.discard_chars(^contents);
+        str.read_char(^contents, ^ch);
+        str.discard_chars(^contents, 2);
+        str.read_line(^contents, ^pw);
 
         // Part 1
         // count := 0;

@@ -3,24 +3,28 @@ package main
 #include_file "core/std/wasi"
 
 use package core
-use package core_file
 
 main :: proc (args: [] cstring) {
-    contents := file_get_contents("input/day1.txt");
+    contents := file.get_contents("input/day1.txt");
     contents_orig := contents;
     defer cfree(contents_orig.data);
 
     nums: [..] u32;
-    array_init(^nums, 128);
-    defer array_free(^nums);
+    array.init(^nums, 128);
+    defer array.free(^nums);
 
     while num := 1; num > 0 {
         // This sets num to be 0 if there is no number
-        string_read_u32(^contents, ^num); 
-        if num != 0 do array_push(^nums, num);
+        str.read_u32(^contents, ^num); 
+        if num != 0 do array.push(^nums, num);
     }
 
     for i: nums do for j: nums do for k: nums {
-        if j + i + k == 2020 do printf("Answer: %i\n", i * j * k);
+        if j + i + k == 2020 {
+            printf("Answer: %i\n", i * j * k);
+
+            // Break out of all of the loops
+            break break break;
+        }
     }
 }

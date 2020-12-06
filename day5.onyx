@@ -1,22 +1,21 @@
 #include_file "core/std/wasi"
 
 use package core
-use package core_file
 
 main :: proc (args: [] cstring) {
-    contents := file_get_contents("input/day5.txt");
+    contents := file.get_contents("input/day5.txt");
     contents_data := contents.data;
     defer cfree(contents_data);
 
     vals: [..] u32;
-    array_init(^vals);
-    defer array_free(^vals);
+    array.init(^vals);
+    defer array.free(^vals);
 
     max_val := 0;
 
     while true {
         line: string;
-        string_read_line(^contents, ^line);
+        str.read_line(^contents, ^line);
         if line.count == 0 do break;
 
         val := 0;
@@ -25,12 +24,12 @@ main :: proc (args: [] cstring) {
             if ch == #char "B" || ch == #char "R" do val += 1;
         }
 
-        max_val = max_poly(max_val, val);
-        array_push(^vals, val);
+        max_val = math.max(max_val, val);
+        array.push(^vals, val);
     }
 
     missing := 0;
-    array_sort(^vals, cmp_asc);
+    array.sort(^vals, cmp_asc);
     for i: 0 .. vals.count - 1 {
         if vals[i + 1] - vals[i] != 1 do missing = vals[i] + 1;
     }

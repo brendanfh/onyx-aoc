@@ -1,7 +1,6 @@
 #include_file "core/std/wasi"
 
 use package core
-use package core_file
 
 part_1 :: proc (contents: ^string) -> u32 {
     chars : [26] u8;
@@ -9,7 +8,7 @@ part_1 :: proc (contents: ^string) -> u32 {
 
     while true {
         line: string;
-        string_read_line(contents, ^line);
+        str.read_line(contents, ^line);
         if line.count == 0 do break;
 
         for ch: line do chars[~~ch - cast(u32) #char "a"] = ~~1;
@@ -28,7 +27,7 @@ part_2 :: proc (contents: ^string) -> u32 {
     person_count := 0;
     while true {
         line: string;
-        string_read_line(contents, ^line);
+        str.read_line(contents, ^line);
         if line.count == 0 do break;
         person_count += 1;
 
@@ -42,7 +41,7 @@ part_2 :: proc (contents: ^string) -> u32 {
 }
 
 main :: proc (args: [] cstring) {
-    contents := file_get_contents("input/day6.txt");
+    contents := file.get_contents("input/day6.txt");
     contents_data := contents.data;
     defer cfree(contents_data);
 
@@ -50,7 +49,7 @@ main :: proc (args: [] cstring) {
     while true {
         if contents.count == 0 do break;
 
-        unique := part_2(^contents);
+        unique := part_1(^contents);
         unique_sum += unique;
     }
 

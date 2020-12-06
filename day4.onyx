@@ -1,7 +1,6 @@
 #include_file "core/std/wasi"
 
 use package core
-use package core_file
 
 // Returns the number of fields
 process_passport :: proc (contents: ^string) -> u32 {
@@ -9,18 +8,17 @@ process_passport :: proc (contents: ^string) -> u32 {
 
     while true {
         line: string;
-        string_read_line(contents, ^line);
+        str.read_line(contents, ^line);
         if line.count == 0 do break;
 
-        fields := string_split(line, #char " ");
+        fields := str.split(line, #char " ");
         defer cfree(fields.data);
 
         for field: fields {
-            data := string_split(field, #char ":");
+            data := str.split(field, #char ":");
             defer cfree(data.data);
-            printf("Field: %s\n", data[0]);
 
-            if !string_equal(data[0], "cid") {
+            if !str.equal(data[0], "cid") {
                 field_count += 1;
             }
         }
@@ -32,7 +30,7 @@ process_passport :: proc (contents: ^string) -> u32 {
 // This does not include part 2 because it is gross and
 // not worth the effort to implement it.
 main :: proc (args: [] cstring) {
-    contents := file_get_contents("input/day4.txt");
+    contents := file.get_contents("input/day4.txt");
     contents_data := contents.data;
     defer cfree(contents_data);
 

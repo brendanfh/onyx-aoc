@@ -1,0 +1,58 @@
+#include_file "core/std/wasi"
+
+use package core
+use package core_file
+
+part_1 :: proc (contents: ^string) -> u32 {
+    chars : [26] u8;
+    for ^ch: chars do *ch = ~~0;
+
+    while true {
+        line: string;
+        string_read_line(contents, ^line);
+        if line.count == 0 do break;
+
+        for ch: line do chars[~~ch - cast(u32) #char "a"] = ~~1;
+    }
+
+    sum := 0;
+    for ch: chars do sum += ~~ch;
+
+    return sum;
+}
+
+part_2 :: proc (contents: ^string) -> u32 {
+    chars : [26] u32;
+    for ^ch: chars do *ch = 0;
+
+    person_count := 0;
+    while true {
+        line: string;
+        string_read_line(contents, ^line);
+        if line.count == 0 do break;
+        person_count += 1;
+
+        for ch: line do chars[~~ch - cast(u32) #char "a"] += 1;
+    }
+
+    sum := 0;
+    for ch: chars do if ch == person_count do sum += 1;
+
+    return sum;
+}
+
+main :: proc (args: [] cstring) {
+    contents := file_get_contents("input/day6.txt");
+    contents_data := contents.data;
+    defer cfree(contents_data);
+
+    unique_sum := 0;
+    while true {
+        if contents.count == 0 do break;
+
+        unique := part_2(^contents);
+        unique_sum += unique;
+    }
+
+    printf("Unique sum: %i\n", unique_sum);
+}

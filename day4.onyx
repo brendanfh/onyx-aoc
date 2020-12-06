@@ -1,0 +1,48 @@
+#include_file "core/std/wasi"
+
+use package core
+use package core_file
+
+// Returns the number of fields
+process_passport :: proc (contents: ^string) -> u32 {
+    field_count := 0;
+
+    while true {
+        line: string;
+        string_read_line(contents, ^line);
+        if line.count == 0 do break;
+
+        fields := string_split(line, #char " ");
+        defer cfree(fields.data);
+
+        for field: fields {
+            data := string_split(field, #char ":");
+            defer cfree(data.data);
+            printf("Field: %s\n", data[0]);
+
+            if !string_equal(data[0], "cid") {
+                field_count += 1;
+            }
+        }
+    }
+
+    return field_count;
+}
+
+// This does not include part 2 because it is gross and
+// not worth the effort to implement it.
+main :: proc (args: [] cstring) {
+    contents := file_get_contents("input/day4.txt");
+    contents_data := contents.data;
+    defer cfree(contents_data);
+
+    valid_passports := 0;
+    while true {
+        if contents.count == 0 do break;
+
+        field_count := process_passport(^contents);
+        if field_count == 7 do valid_passports += 1;
+    }
+
+    printf("Valid passports: %i\n", valid_passports);
+}

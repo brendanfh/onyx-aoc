@@ -1,0 +1,142 @@
+#include_file "core/std/wasi"
+
+use package core
+
+BagGraph :: struct {
+    nodes : [..] ^BagNode;
+    node_map : strmap.StrMap(^BagNode);
+}
+
+BagNode :: struct {
+    color : string;
+    // Part 1
+    // contained_in : [..] BagContainment;
+
+    // Part 2
+    contain : [..] BagContainment;
+}
+
+BagContainment :: struct {
+    bag : ^BagNode;
+    count : u32;
+}
+
+bg_init :: proc (use graph: ^BagGraph) {
+    array.init(^nodes, 16);
+    strmap.init(^node_map);
+}
+
+bg_free :: proc (use graph: ^BagGraph) {
+    array.free(^nodes);
+    strmap.free(^node_map);
+}
+
+bg_get_node :: proc (use graph: ^BagGraph, name: string) -> ^BagNode {
+    node := strmap.get(^node_map, name);
+
+    if node == null {
+        node = calloc(sizeof BagNode);
+        // Part 1
+        // array.init(^node.contained_in, 2);
+        // Part 2
+        array.init(^node.contain, 2);
+        node.color = name;
+
+        array.push(^nodes, node);
+        strmap.put(^node_map, name, node);
+    }
+
+    return node;
+}
+
+main :: proc (args: [] cstring) {
+    contents := file.get_contents("input/day7.txt");
+    contents_data := contents.data;
+    defer cfree(contents_data);
+
+    graph : BagGraph;
+    bg_init(^graph);
+    defer bg_free(^graph);
+
+    while true {
+        name := str.read_until(^contents, #char " ", 1);
+        if name.count == 0 do break;
+
+        container := bg_get_node(^graph, name);
+
+        str.read_until(^contents, #char " ", 2);
+
+        while true {
+            if str.starts_with(contents, " no") do break;
+
+            count : u32;
+            str.read_u32(^contents, ^count);
+            str.discard_chars(^contents, 1);
+
+            contained_name := str.read_until(^contents, #char " ", 1);
+            contained := bg_get_node(^graph, contained_name);
+
+            // Part 1
+            // array.push(^contained.contained_in, BagContainment.{
+            //     bag = container,
+            //     count = count
+            // });
+
+            // Part 2
+            array.push(^container.contain, BagContainment.{
+                bag = contained,
+                count = count
+            });
+
+            bag_word := str.read_until_either(^contents, 1, #char " ", #char "\n");
+            if bag_word[bag_word.count - 1] == #char "." do break;
+        }
+
+        str.advance_line(^contents);
+    }
+    
+    // Part 1
+    // to_process_bags : [..] ^BagNode;
+    // processed_bags: [..] ^BagNode;
+
+    // array.init(^to_process_bags);
+    // array.init(^processed_bags, 32);
+    // array.push(^to_process_bags, bg_get_node(^graph, "shiny gold"));
+
+    // while to_process_bags.count > 0 {
+    //     bag := array.pop(^to_process_bags);
+    //     array.push(^processed_bags, bag);
+    //     
+    //     for container: bag.contained_in {
+    //         if !array.contains(^processed_bags, container.bag) && !array.contains(^to_process_bags, container.bag) {
+    //             // printf("Adding %s to process.\n", container.bag.color);
+    //             array.push(^to_process_bags, container.bag);
+    //         }
+    //     }
+    // }
+
+    // printf("Count: %i\n", processed_bags.count - 1);
+    
+    // Part 2
+    to_process : [..] ^BagNode;
+    multiplier : [..] u32;
+
+    array.init(^to_process);
+    array.init(^multiplier);
+    array.push(^to_process, bg_get_node(^graph, "shiny gold"));
+    array.push(^multiplier, 1);
+
+    count := 0;
+    while to_process.count > 0 {
+        bag := array.pop(^to_process);
+        mul := array.pop(^multiplier);
+        count += mul;
+
+        for bc: bag.contain {
+            array.push(^to_process, bc.bag);
+            array.push(^multiplier, bc.count * mul);
+        }
+    }
+
+    printf("Count: %i\n", count - 1);
+}

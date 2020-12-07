@@ -3,19 +3,19 @@
 use package core
 
 part_1 :: proc (contents: ^string) -> u32 {
-    chars : [26] u8;
-    for ^ch: chars do *ch = ~~0;
+    chars : [26] bool;
+    for ^ch: chars do *ch = false;
 
     while true {
         line: string;
         str.read_line(contents, ^line);
         if line.count == 0 do break;
 
-        for ch: line do chars[~~ch - cast(u32) #char "a"] = ~~1;
+        for ch: line do chars[~~ch - cast(u32) #char "a"] = true;
     }
 
     sum := 0;
-    for ch: chars do sum += ~~ch;
+    for ch: chars do if ch do sum += 1;
 
     return sum;
 }

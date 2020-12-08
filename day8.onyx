@@ -1,7 +1,6 @@
 #include_file "core/std/wasi"
 
 use package core
-use package system { output_string }
 
 OpCode :: enum (u16) {
     Nop; Acc; Jmp;
@@ -46,11 +45,9 @@ get_acc_value :: proc (instrs: [..] Instruction, ret_acc: ^i32) -> bool {
 }
 
 main :: proc (args: [] cstring) {
-    // contents := file.get_contents("input/day8.txt");
-    // contents_data := contents.data;
-    // defer cfree(contents_data);
-
-    contents := #file_contents "input/day8.txt";
+    contents := file.get_contents("input/day8.txt");
+    contents_data := contents.data;
+    defer cfree(contents_data);
 
     instrs: [..] Instruction;
     array.init(^instrs, 32);

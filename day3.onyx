@@ -47,10 +47,10 @@ main :: proc (args: [] cstring) {
     lis[3] = LineInterp.{ 0, 0, 7, 1 };
     lis[4] = LineInterp.{ 0, 0, 1, 2 };
 
-    tree_prod: u64 = ~~1;
+    tree_prod: u64 = 1;
 
     for li: lis {
-        tree_count := 0;
+        tree_count: u64 = 0;
         while i := 0; true {
             p := line_interp_at(li, i); 
             if p.y >= height || p.y < 0 do break; 
@@ -61,7 +61,7 @@ main :: proc (args: [] cstring) {
             if forest[p.x + p.y * width] == #char "#" do tree_count += 1;
         }
 
-        tree_prod *= ~~tree_count;
+        tree_prod *= tree_count;
     }
 
     printf("Tree product: %l\n", tree_prod);

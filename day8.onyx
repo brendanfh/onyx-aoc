@@ -1,0 +1,99 @@
+#include_file "core/std/wasi"
+
+use package core
+use package system { output_string }
+
+OpCode :: enum (u16) {
+    Nop; Acc; Jmp;
+}
+
+Instruction :: struct {
+    opcode : OpCode;
+    data   : i16;
+}
+
+// Returns if the program successfully exited.
+get_acc_value :: proc (instrs: [..] Instruction, ret_acc: ^i32) -> bool {
+    already_been: i32map.I32Map(bool);
+    i32map.init(^already_been);
+    defer i32map.free(^already_been);
+
+    ip   := 0;
+    acc  := 0;
+    succ := false;
+    while true {
+        if ip >= instrs.count {
+            succ = true;
+            break;
+        }
+        
+        if i32map.has(^already_been, ip) do break;
+        i32map.put(^already_been, ip, true);
+
+        instr := instrs[ip];
+        switch instr.opcode {
+            case OpCode.Nop do ip += 1;
+            case OpCode.Acc do {
+                acc += ~~instr.data;
+                ip += 1;
+            }
+            case OpCode.Jmp do ip += ~~instr.data;
+        }
+    }
+
+    *ret_acc = acc;
+    return succ;
+}
+
+main :: proc (args: [] cstring) {
+    // contents := file.get_contents("input/day8.txt");
+    // contents_data := contents.data;
+    // defer cfree(contents_data);
+
+    contents := #file_contents "input/day8.txt";
+
+    instrs: [..] Instruction;
+    array.init(^instrs, 32);
+    defer array.free(^instrs);
+
+    while true {
+        if contents.count < 3 do break;
+
+        word: string;
+        str.read_chars(^contents, ^word, 3);
+        str.discard_chars(^contents);
+
+        sign: u8;
+        str.read_char(^contents, ^sign);
+
+        val: i32;
+        str.read_u32(^contents, ^val);
+
+        str.advance_line(^contents);
+
+        if sign == #char "-" do val *= -1;
+
+        opcode : OpCode;
+        if     str.equal(word, "nop") do opcode = OpCode.Nop;
+        elseif str.equal(word, "acc") do opcode = OpCode.Acc;
+        elseif str.equal(word, "jmp") do opcode = OpCode.Jmp;
+
+        array.push(^instrs, Instruction.{
+            opcode = opcode,
+            data   = ~~val,
+        });
+    }
+
+    acc: i32;
+    for ^instr: instrs {
+        if     instr.opcode == OpCode.Nop do instr.opcode = OpCode.Jmp;
+        elseif instr.opcode == OpCode.Jmp do instr.opcode = OpCode.Nop;
+
+        if get_acc_value(instrs, ^acc) do break;
+
+        if     instr.opcode == OpCode.Nop do instr.opcode = OpCode.Jmp;
+        elseif instr.opcode == OpCode.Jmp do instr.opcode = OpCode.Nop;
+    }
+
+    printf("Accumulator value: %i\n", acc);
+}

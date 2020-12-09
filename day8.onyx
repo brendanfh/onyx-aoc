@@ -1,14 +1,15 @@
 #include_file "core/std/wasi"
 
 use package core
+use package core.str.reader as reader
 
 OpCode :: enum (u16) {
     Nop; Acc; Jmp;
 }
 
 Instruction :: struct {
-    opcode : OpCode;
-    data   : i16;
+    opcode  : OpCode;
+    operand : i16;
 }
 
 // Returns if the program successfully exited.
@@ -29,14 +30,13 @@ get_acc_value :: proc (instrs: [..] Instruction, ret_acc: ^i32) -> bool {
         if i32map.has(^already_been, ip) do break;
         i32map.put(^already_been, ip, true);
 
-        instr := instrs[ip];
-        switch instr.opcode {
+        switch instrs[ip].opcode {
             case OpCode.Nop do ip += 1;
-            case OpCode.Acc do {
-                acc += ~~instr.data;
+            case OpCode.Acc {
+                acc += ~~instrs[ip].operand;
                 ip += 1;
             }
-            case OpCode.Jmp do ip += ~~instr.data;
+            case OpCode.Jmp do ip += ~~instrs[ip].operand;
         }
     }
 
@@ -46,27 +46,22 @@ get_acc_value :: proc (instrs: [..] Instruction, ret_acc: ^i32) -> bool {
 
 main :: proc (args: [] cstring) {
     contents := file.get_contents("input/day8.txt");
-    contents_data := contents.data;
-    defer cfree(contents_data);
+    defer cfree(contents.data);
+
+    file := reader.make(contents);
 
     instrs: [..] Instruction;
     array.init(^instrs, 32);
     defer array.free(^instrs);
 
-    while true {
-        if contents.count < 3 do break;
+    while !reader.empty(^file) {
+        word := reader.read_bytes(^file, 3);
+        reader.skip_bytes(^file, 1);
 
-        word: string;
-        str.read_chars(^contents, ^word, 3);
-        str.discard_chars(^contents);
+        sign := reader.read_byte(^file);
+        val := reader.read_u32(^file);
 
-        sign: u8;
-        str.read_char(^contents, ^sign);
-
-        val: i32;
-        str.read_u32(^contents, ^val);
-
-        str.advance_line(^contents);
+        reader.advance_line(^file);
 
         if sign == #char "-" do val *= -1;
 
@@ -76,8 +71,8 @@ main :: proc (args: [] cstring) {
         elseif str.equal(word, "jmp") do opcode = OpCode.Jmp;
 
         array.push(^instrs, Instruction.{
-            opcode = opcode,
-            data   = ~~val,
+            opcode  = opcode,
+            operand = ~~val,
         });
     }
 

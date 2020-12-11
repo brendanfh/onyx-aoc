@@ -1,7 +1,7 @@
 #include_file "core/std/wasi"
 
 use package core
-use package core.str.reader as reader
+use package core.string.reader as reader
 
 count_ending_paths :: proc (nums: [..] u32) -> u64 {
     tally: [..] u64;
@@ -24,7 +24,7 @@ count_ending_paths :: proc (nums: [..] u32) -> u64 {
     return tally[0];
 }
 
-main :: proc (args: [] cstring) {
+main :: proc (args: [] cstr) {
     contents := file.get_contents("input/day10.txt");
     defer cfree(contents.data);
 

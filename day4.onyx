@@ -3,22 +3,22 @@
 use package core
 
 // Returns the number of fields
-process_passport :: proc (contents: ^string) -> u32 {
+process_passport :: proc (contents: ^str) -> u32 {
     field_count := 0;
 
     while true {
-        line: string;
-        str.read_line(contents, ^line);
+        line: str;
+        string.read_line(contents, ^line);
         if line.count == 0 do break;
 
-        fields := str.split(line, #char " ");
+        fields := string.split(line, #char " ");
         defer cfree(fields.data);
 
         for field: fields {
-            data := str.split(field, #char ":");
+            data := string.split(field, #char ":");
             defer cfree(data.data);
 
-            if !str.equal(data[0], "cid") {
+            if !string.equal(data[0], "cid") {
                 field_count += 1;
             }
         }
@@ -29,7 +29,7 @@ process_passport :: proc (contents: ^string) -> u32 {
 
 // This does not include part 2 because it is gross and
 // not worth the effort to implement it.
-main :: proc (args: [] cstring) {
+main :: proc (args: [] cstr) {
     contents := file.get_contents("input/day4.txt");
     contents_data := contents.data;
     defer cfree(contents_data);

@@ -2,13 +2,13 @@
 
 use package core
 
-part_1 :: proc (contents: ^string) -> u32 {
+part_1 :: proc (contents: ^str) -> u32 {
     chars : [26] bool;
     for ^ch: chars do *ch = false;
 
     while true {
-        line: string;
-        str.read_line(contents, ^line);
+        line: str;
+        string.read_line(contents, ^line);
         if line.count == 0 do break;
 
         for ch: line do chars[~~ch - cast(u32) #char "a"] = true;
@@ -20,14 +20,14 @@ part_1 :: proc (contents: ^string) -> u32 {
     return sum;
 }
 
-part_2 :: proc (contents: ^string) -> u32 {
+part_2 :: proc (contents: ^str) -> u32 {
     chars : [26] u32;
     for ^ch: chars do *ch = 0;
 
     person_count := 0;
     while true {
-        line: string;
-        str.read_line(contents, ^line);
+        line: str;
+        string.read_line(contents, ^line);
         if line.count == 0 do break;
         person_count += 1;
 
@@ -40,7 +40,7 @@ part_2 :: proc (contents: ^string) -> u32 {
     return sum;
 }
 
-main :: proc (args: [] cstring) {
+main :: proc (args: [] cstr) {
     contents := file.get_contents("input/day6.txt");
     contents_data := contents.data;
     defer cfree(contents_data);

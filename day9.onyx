@@ -1,7 +1,7 @@
 #include_file "core/std/wasi"
 
 use package core
-use package core.str.reader as reader
+use package core.string.reader as reader
 
 StartEnd :: struct { start: i32; end: i32; }
 
@@ -27,7 +27,7 @@ find_contiguous_subarray_with_sum :: proc (nums: [..] u64, sum: u64) -> StartEnd
     return StartEnd.{ start, end };
 }
 
-main :: proc (args: [] cstring) {
+main :: proc (args: [] cstr) {
     contents := file.get_contents("input/day9.txt");
     defer cfree(contents.data);
 

@@ -4,7 +4,7 @@ package main
 
 use package core
 
-main :: proc (args: [] cstring) {
+main :: proc (args: [] cstr) {
     contents := file.get_contents("input/day2.txt");
     contents_orig := contents;
     defer cfree(contents_orig.data);
@@ -13,17 +13,17 @@ main :: proc (args: [] cstring) {
     lo : u32;
     hi : u32;
     ch : u8;
-    pw : string = "";
+    pw : str = "";
 
     while true {
-        str.read_u32(^contents, ^lo);
+        string.read_u32(^contents, ^lo);
         if lo == 0 do break;
-        str.discard_chars(^contents);
-        str.read_u32(^contents, ^hi);
-        str.discard_chars(^contents);
-        str.read_char(^contents, ^ch);
-        str.discard_chars(^contents, 2);
-        str.read_line(^contents, ^pw);
+        string.discard_chars(^contents);
+        string.read_u32(^contents, ^hi);
+        string.discard_chars(^contents);
+        string.read_char(^contents, ^ch);
+        string.discard_chars(^contents, 2);
+        string.read_line(^contents, ^pw);
 
         // Part 1
         // count := 0;

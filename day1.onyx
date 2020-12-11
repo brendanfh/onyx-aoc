@@ -4,7 +4,7 @@ package main
 
 use package core
 
-main :: proc (args: [] cstring) {
+main :: proc (args: [] cstr) {
     contents := file.get_contents("input/day1.txt");
     contents_orig := contents;
     defer cfree(contents_orig.data);
@@ -15,7 +15,7 @@ main :: proc (args: [] cstring) {
 
     while num := 1; num > 0 {
         // This sets num to be 0 if there is no number
-        str.read_u32(^contents, ^num); 
+        string.read_u32(^contents, ^num); 
         if num != 0 do array.push(^nums, num);
     }
 

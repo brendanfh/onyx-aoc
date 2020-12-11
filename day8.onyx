@@ -1,7 +1,7 @@
 #include_file "core/std/wasi"
 
 use package core
-use package core.str.reader as reader
+use package core.string.reader as reader
 
 OpCode :: enum (u16) {
     Nop; Acc; Jmp;
@@ -44,7 +44,7 @@ get_acc_value :: proc (instrs: [..] Instruction, ret_acc: ^i32) -> bool {
     return succ;
 }
 
-main :: proc (args: [] cstring) {
+main :: proc (args: [] cstr) {
     contents := file.get_contents("input/day8.txt");
     defer cfree(contents.data);
 
@@ -66,9 +66,9 @@ main :: proc (args: [] cstring) {
         if sign == #char "-" do val *= -1;
 
         opcode : OpCode;
-        if     str.equal(word, "nop") do opcode = OpCode.Nop;
-        elseif str.equal(word, "acc") do opcode = OpCode.Acc;
-        elseif str.equal(word, "jmp") do opcode = OpCode.Jmp;
+        if     string.equal(word, "nop") do opcode = OpCode.Nop;
+        elseif string.equal(word, "acc") do opcode = OpCode.Acc;
+        elseif string.equal(word, "jmp") do opcode = OpCode.Jmp;
 
         array.push(^instrs, Instruction.{
             opcode  = opcode,

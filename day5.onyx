@@ -2,7 +2,7 @@
 
 use package core
 
-main :: proc (args: [] cstring) {
+main :: proc (args: [] cstr) {
     contents := file.get_contents("input/day5.txt");
     contents_data := contents.data;
     defer cfree(contents_data);
@@ -14,8 +14,8 @@ main :: proc (args: [] cstring) {
     max_val := 0;
 
     while true {
-        line: string;
-        str.read_line(^contents, ^line);
+        line: str;
+        string.read_line(^contents, ^line);
         if line.count == 0 do break;
 
         val := 0;

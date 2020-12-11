@@ -18,7 +18,7 @@ line_interp_at :: proc (use li: LineInterp, t: i32) -> Point {
     return Point.{ ox + dx * t, oy + dy * t };
 }
 
-main :: proc (args: [] cstring) {
+main :: proc (args: [] cstr) {
     contents := file.get_contents("input/day3.txt");
     contents_orig := contents;
     defer cfree(contents_orig.data);
@@ -30,8 +30,8 @@ main :: proc (args: [] cstring) {
     width := 0;
     height := 0;
     while true {
-        line: string = "";
-        str.read_line(^contents, ^line);
+        line := "";
+        string.read_line(^contents, ^line);
         if line.count == 0 do break;
 
         width = line.count;

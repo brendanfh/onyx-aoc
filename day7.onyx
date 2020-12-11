@@ -1,6 +1,7 @@
 #include_file "core/std/wasi"
 
 use package core
+use package core.string.reader as reader
 
 BagGraph :: struct {
     nodes : [..] ^BagNode;
@@ -8,7 +9,7 @@ BagGraph :: struct {
 }
 
 BagNode :: struct {
-    color : string;
+    color : str;
     // Part 1
     // contained_in : [..] BagContainment;
 
@@ -31,7 +32,7 @@ bg_free :: proc (use graph: ^BagGraph) {
     strmap.free(^node_map);
 }
 
-bg_get_node :: proc (use graph: ^BagGraph, name: string) -> ^BagNode {
+bg_get_node :: proc (use graph: ^BagGraph, name: str) -> ^BagNode {
     node := strmap.get(^node_map, name);
 
     if node == null {
@@ -43,37 +44,37 @@ bg_get_node :: proc (use graph: ^BagGraph, name: string) -> ^BagNode {
         node.color = name;
 
         array.push(^nodes, node);
-        strmap.put(^node_map, name, node);
+        strmap.put(^node_map, node.color, node);
     }
 
     return node;
 }
 
-main :: proc (args: [] cstring) {
+main :: proc (args: [] cstr) {
     contents := file.get_contents("input/day7.txt");
-    contents_data := contents.data;
-    defer cfree(contents_data);
+    defer cfree(contents.data);
+
+    file := reader.make(contents);
 
     graph : BagGraph;
     bg_init(^graph);
     defer bg_free(^graph);
 
     while true {
-        name := str.read_until(^contents, #char " ", 1);
+        name := reader.read_until(^file, 1, #char " ");
         if name.count == 0 do break;
 
         container := bg_get_node(^graph, name);
 
-        str.read_until(^contents, #char " ", 2);
+        reader.read_until(^file, 2, #char " ");
 
         while true {
-            if str.starts_with(contents, " no") do break;
+            if reader.starts_with(^file, " no") do break;
 
-            count : u32;
-            str.read_u32(^contents, ^count);
-            str.discard_chars(^contents, 1);
+            count := reader.read_u32(^file);
+            reader.skip_bytes(^file, 1);
 
-            contained_name := str.read_until(^contents, #char " ", 1);
+            contained_name := reader.read_until(^file, 1, #char " ");
             contained := bg_get_node(^graph, contained_name);
 
             // Part 1
@@ -88,13 +89,13 @@ main :: proc (args: [] cstring) {
                 count = count
             });
 
-            bag_word := str.read_until_either(^contents, 1, #char " ", #char "\n");
+            bag_word := reader.read_until(^file, 1, #char " ", #char "\n");
             if bag_word[bag_word.count - 1] == #char "." do break;
         }
 
-        str.advance_line(^contents);
+        reader.advance_line(^file);
     }
-    
+
     // Part 1
     // to_process_bags : [..] ^BagNode;
     // processed_bags: [..] ^BagNode;

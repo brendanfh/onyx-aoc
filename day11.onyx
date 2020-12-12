@@ -17,11 +17,6 @@ gos_get_seat :: proc (use gos: ^GameOfSeats, x: i32, y: i32) -> SeatState {
     return seats[x + y * width];
 }
 
-gos_set_temp :: proc (use gos: ^GameOfSeats, x: i32, y: i32, state: SeatState) {
-    if x < 0 || y < 0 || x >= width || y >= height do return;
-    temp[x + y * width] = state;
-}
-
 gos_neighbors :: proc (use gos: ^GameOfSeats, x: i32, y: i32, state := SeatState.Occupied) -> u32 {
     count := 0;
 
@@ -53,12 +48,12 @@ gos_iter :: proc (use gos: ^GameOfSeats) -> bool {
 
             switch gos_get_seat(gos, x, y) {
                 case SeatState.Empty do if occ_neighbors == 0 {
-                    gos_set_temp(gos, x, y, SeatState.Occupied);
+                    temp[x + y * width] = SeatState.Occupied;
                     changed = true;
                 }
 
                 case SeatState.Occupied do if occ_neighbors >= 5 {
-                    gos_set_temp(gos, x, y, SeatState.Empty);
+                    temp[x + y * width] = SeatState.Empty;
                     changed = true;
                 }
             }

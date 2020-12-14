@@ -5,7 +5,7 @@ use package core.string.reader as reader
 
 BagGraph :: struct {
     nodes : [..] ^BagNode;
-    node_map : strmap.StrMap(^BagNode);
+    node_map : map.Map(str, ^BagNode);
 }
 
 BagNode :: struct {
@@ -24,16 +24,16 @@ BagContainment :: struct {
 
 bg_init :: proc (use graph: ^BagGraph) {
     array.init(^nodes, 16);
-    strmap.init(^node_map);
+    map.init(^node_map);
 }
 
 bg_free :: proc (use graph: ^BagGraph) {
     array.free(^nodes);
-    strmap.free(^node_map);
+    map.free(^node_map);
 }
 
 bg_get_node :: proc (use graph: ^BagGraph, name: str) -> ^BagNode {
-    node := strmap.get(^node_map, name);
+    node := map.get(^node_map, name);
 
     if node == null {
         node = calloc(sizeof BagNode);
@@ -44,7 +44,7 @@ bg_get_node :: proc (use graph: ^BagGraph, name: str) -> ^BagNode {
         node.color = name;
 
         array.push(^nodes, node);
-        strmap.put(^node_map, node.color, node);
+        map.put(^node_map, node.color, node);
     }
 
     return node;

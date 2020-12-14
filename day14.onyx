@@ -29,7 +29,7 @@ BitmaskIter :: struct {
 	done              : bool;
 }
 
-bitmask_iter_make :: proc (mask: Bitmask, val: u64) -> BitmaskIter #export "foobar" {
+bitmask_iter_make :: proc (mask: Bitmask, val: u64) -> BitmaskIter {
 	bmi : BitmaskIter;
 	bmi.done = false;
 
@@ -72,7 +72,7 @@ bitmask_iter_next :: proc (use bmi: ^BitmaskIter) -> u64 {
 			if !is_set do break break;
 		}
 
-		done = true;		
+		done = true;
 	}
 
 	return val;

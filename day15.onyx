@@ -14,6 +14,9 @@ main :: proc (args: [] cstr) {
 
     file := reader.make(contents);
 
+    // The current implementation of Map is rather slow at a large scale.
+    // Any changes to the implementation of Map should be tested on this
+    // file to validate if they 1) work and 2) are faster.
     nums : map.Map(u32, spoken_times);
     map.init(^nums, 32767);
     defer map.free(^nums);

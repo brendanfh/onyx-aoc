@@ -1,0 +1,47 @@
+#include_file "core/std/wasi"
+
+use package core
+use package core.string.reader as reader
+
+spoken_times :: struct {
+    recent   : u32 = 0;
+    previous : u32 = 0;
+}
+
+main :: proc (args: [] cstr) {
+    contents := file.get_contents("input/day15.txt");
+    defer string.free(contents);
+
+    file := reader.make(contents);
+
+    nums : map.Map(u32, spoken_times);
+    map.init(^nums, 32767);
+    defer map.free(^nums);
+
+    turn := 1;
+    last_num := 0;
+    while !reader.empty(^file) {
+        n := reader.read_u32(^file);
+        reader.skip_bytes(^file);
+
+        map.put(^nums, n, spoken_times.{ recent = turn });
+        turn += 1;
+        last_num = n;
+    }
+
+    while turn != 30000001 {
+        st := map.get(^nums, last_num, spoken_times.{});
+
+        if st.previous == 0 do last_num = 0;
+        else                do last_num = st.recent - st.previous;
+
+        st = map.get(^nums, last_num, spoken_times.{});
+        st.previous = st.recent;
+        st.recent = turn;
+        map.put(^nums, last_num, st);
+
+        turn += 1;
+    }
+
+    printf("30000000th: %i\n", last_num);
+}

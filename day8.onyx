@@ -14,9 +14,9 @@ Instruction :: struct {
 
 // Returns if the program successfully exited.
 get_acc_value :: proc (instrs: [..] Instruction, ret_acc: ^i32) -> bool {
-    already_been: i32map.I32Map(bool);
-    i32map.init(^already_been);
-    defer i32map.free(^already_been);
+    already_been: map.Map(i32, bool);
+    map.init(^already_been);
+    defer map.free(^already_been);
 
     ip   := 0;
     acc  := 0;
@@ -27,8 +27,8 @@ get_acc_value :: proc (instrs: [..] Instruction, ret_acc: ^i32) -> bool {
             break;
         }
         
-        if i32map.has(^already_been, ip) do break;
-        i32map.put(^already_been, ip, true);
+        if map.has(^already_been, ip) do break;
+        map.put(^already_been, ip, true);
 
         switch instrs[ip].opcode {
             case OpCode.Nop do ip += 1;

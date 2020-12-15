@@ -85,7 +85,7 @@ main :: proc (args: [] cstr) {
 	file := reader.make(contents);
 
 	mem : map.Map(u64, u64);
-	map.init(^mem, 64);
+	map.init(^mem, 257);
 	defer map.free(^mem);
 
 	mask : Bitmask;

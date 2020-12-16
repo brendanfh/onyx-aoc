@@ -3,17 +3,14 @@
 use package core
 use package core.string.reader as reader
 
+initial_numbers := u32.[ 1, 20, 8, 12, 0, 14 ];
+
 spoken_times :: struct {
     recent   : u32 = 0;
     previous : u32 = 0;
 }
 
 main :: proc (args: [] cstr) {
-    contents := file.get_contents("input/day15.txt");
-    defer string.free(contents);
-
-    file := reader.make(contents);
-
     // The current implementation of Map is rather slow at a large scale.
     // Any changes to the implementation of Map should be tested on this
     // file to validate if they 1) work and 2) are faster.
@@ -23,16 +20,14 @@ main :: proc (args: [] cstr) {
 
     turn := 1;
     last_num := 0;
-    while !reader.empty(^file) {
-        n := reader.read_u32(^file);
-        reader.skip_bytes(^file);
 
+    for n: initial_numbers {
         map.put(^nums, n, spoken_times.{ recent = turn });
         turn += 1;
         last_num = n;
     }
 
-    while turn != 30000001 {
+    while turn != 2021 {
         st := map.get(^nums, last_num, spoken_times.{});
 
         if st.previous == 0 do last_num = 0;
@@ -46,5 +41,5 @@ main :: proc (args: [] cstr) {
         turn += 1;
     }
 
-    printf("30000000th: %i\n", last_num);
+    printf("2020th: %i\n", last_num);
 }

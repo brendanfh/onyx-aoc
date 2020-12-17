@@ -24,7 +24,7 @@ bitmask_p1 :: proc (mask: Bitmask, val: u64) -> u64 {
 
 // Part 2
 BitmaskIter :: struct {
-	floating_indicies : [] u8;
+	floating_indicies : [..] u8;
 	val               : u64;
 	done              : bool;
 }
@@ -33,12 +33,9 @@ bitmask_iter_make :: proc (mask: Bitmask, val: u64) -> BitmaskIter {
 	bmi : BitmaskIter;
 	bmi.done = false;
 
-	floating_count := 0;
-	for m: mask do if m == 2 do floating_count += 1;
-	allocator.alloc_slice(^bmi.floating_indicies, floating_count);
+	array.init(^bmi.floating_indicies, 8);
 
 	v := val;
-	j := 0;
 	for i: 0 .. MASK_SIZE {
 		if mask[i] == 1 {
 			v |= 1 << cast(u64) i;
@@ -47,8 +44,7 @@ bitmask_iter_make :: proc (mask: Bitmask, val: u64) -> BitmaskIter {
 		if mask[i] == 2 {
 			v &= ~(1 << cast(u64) i);
 
-			bmi.floating_indicies[j] = cast(u8) i;
-			j += 1;
+			array.push(^bmi.floating_indicies, cast(u8) i);
 		}
 	}
 
@@ -57,7 +53,7 @@ bitmask_iter_make :: proc (mask: Bitmask, val: u64) -> BitmaskIter {
 }
 
 bitmask_iter_free :: proc (use bmi: ^BitmaskIter) {
-	cfree(floating_indicies.data);	
+	array.free(^floating_indicies);
 }
 
 bitmask_iter_done :: proc (use bmi: ^BitmaskIter) -> bool do return done;

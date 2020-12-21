@@ -1,0 +1,171 @@
+#include_file "core/std/wasi"
+
+use package core
+use package core.string.reader as reader
+
+TILE_DATA_WIDTH  :: 10
+TILE_DATA_HEIGHT :: 10
+
+Tile :: struct {
+	id          : u32;
+	orientation : TileOrientation;
+	data        : [] bool;
+	edges       : [] u32;
+
+	pos_x       : u32 = 0;
+	pos_y       : u32 = 0;
+    
+    edges_with_match : Sides = Sides.{};
+}
+
+Sides :: struct {
+    top    : bool = false;
+    right  : bool = false;
+    bottom : bool = false;
+    left   : bool = false;
+}
+
+TileOrientation :: enum {
+	NORMAL;                 ROTATE_90;         ROTATE_180;         ROTATE_270;
+	FLIPPED_NORMAL; FLIPPED_ROTATE_90; FLIPPED_ROTATE_180; FLIPPED_ROTATE_270;
+}
+
+// Thought about making this dynamic and really fancy...
+// and then I remembered this is advent of code so that
+// is not necessary.
+TileData :: #type [TILE_DATA_WIDTH * TILE_DATA_HEIGHT] bool;
+
+reverse_binary :: proc (n_: u32, digits := TILE_DATA_WIDTH) -> u32 {
+	res := 0;	
+	n := n_;
+	for _: 0 .. digits {
+		res <<= 1;
+		res |= (n & 1);
+		n >>= 1;
+	}
+
+	return res;
+}
+
+build_edges :: proc (tile: [] bool, a := context.allocator) -> [] u32 {
+	edges : [] u32;
+	#context_scope {
+		context.allocator = a;
+		alloc.alloc_slice(^edges, 8);
+	}
+	next_edge := 0;
+
+	for y: u32.[0, 9] {
+		edge := 0;
+
+		for x: 0 .. 10 {
+			edge <<= 1;
+			if tile[x + y * TILE_DATA_WIDTH] do edge |= 1;
+		}
+
+		edges[next_edge] = edge;
+		next_edge += 1;
+	}	
+
+	for x: u32.[0, 9] {
+		edge := 0;
+
+		for y: 0 .. 10 {
+			edge <<= 1;
+			if tile[x + y * TILE_DATA_WIDTH] do edge |= 1;
+		}
+
+		edges[next_edge] = edge;
+		next_edge += 1;
+	}	
+
+	for i: 0 .. 4 {
+		edges[next_edge] = reverse_binary(edges[i]);
+		next_edge += 1;
+	}
+
+	return edges;
+}
+
+has_matching_edges :: proc (t1: ^Tile, t2: ^Tile) -> bool {
+    match := false;
+
+	for e_idx: 0 .. t1.edges.count / 2 do for e2: t2.edges {
+        if t1.edges[e_idx] == e2 {
+            match = true;
+
+            switch e_idx {
+                case 0 do t1.edges_with_match.top = true;
+                case 1 do t1.edges_with_match.right = true;
+                case 2 do t1.edges_with_match.bottom = true;
+                case 3 do t1.edges_with_match.left = true;
+            }
+        }
+    }
+
+	return match;
+}
+
+main :: proc (args: [] cstr) {
+	contents := file.get_contents("input/day20.txt");
+
+	file := reader.make(contents);	
+
+	tiles : [..] Tile;
+	array.init(^tiles);
+	defer array.free(^tiles);
+
+	tile_data := calloc(200 * sizeof TileData);
+	defer cfree(tile_data);
+	
+	tile_data_arena := alloc.arena.make(tile_data, 200 * sizeof TileData);
+	tile_allocator  := alloc.arena.make_allocator(^tile_data_arena);
+
+	while !reader.empty(^file) {
+		reader.read_word(^file); // 'Tile '
+		id := reader.read_u32(^file);
+
+		reader.advance_line(^file);
+
+		td := cast(^bool) raw_alloc(tile_allocator, sizeof TileData);
+
+		for y: 0 .. 10 {
+			line := reader.read_line(^file);
+
+			for x: 0 .. 10 {
+				td[x + y * TILE_DATA_WIDTH] = (line[x] == #char "#");
+			}
+		}
+
+		tile_data := td[0 .. TILE_DATA_HEIGHT * TILE_DATA_WIDTH];
+		edges := build_edges(tile_data, tile_allocator);
+
+		array.push(^tiles, Tile.{
+			id = id,
+			orientation = TileOrientation.NORMAL,
+			data = tile_data,
+			edges = edges,
+		});
+
+		reader.advance_line(^file);
+	}
+
+	prod: u64 = 1;
+
+	for i: 0 .. tiles.count - 1 {
+		matching_count := 0;
+
+		for j: 0 .. tiles.count {
+			if i == j do continue;
+			if has_matching_edges(^tiles[i], ^tiles[j]) {
+				matching_count += 1;
+			}
+		}
+
+		if matching_count == 2 {
+			prod *= ~~tiles[i].id;
+        }
+	}
+
+	printf("Corner product: %l\n", prod);
+}

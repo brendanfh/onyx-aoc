@@ -209,8 +209,8 @@ sea_monster := u8.[
 scan_for_monsters :: proc (forest: ^u8, ori: TO, width: u32, height: u32) -> bool {
     found_monsters := false;
 
-    for y: 0 .. height - sea_monster_height - 1 {
-        for x: 0 .. width - sea_monster_width - 1 {
+    for y: 0 .. height - sea_monster_height {
+        for x: 0 .. width - sea_monster_width {
             is_monster := true;
 
             for my: 0 .. sea_monster_height {

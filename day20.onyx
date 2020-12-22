@@ -183,14 +183,6 @@ apply_orientation :: proc (t: ^Tile, ori: TO) {
     t.orientation = ori;
 }
 
-dummy_data := u32.[
-    0, 1, 0, 0, 0,
-    0, 1, 0, 1, 0,
-    1, 1, 1, 1, 1,
-    0, 1, 0, 0, 0,
-    0, 1, 0, 0, 0,
-];
-
 index_square_with_orientation :: proc (data: ^$T, ori: TO, size: i32, x: i32, y: i32) -> ^T {
     switch ori {
         case TO.N     do return ^data[x + y * size];

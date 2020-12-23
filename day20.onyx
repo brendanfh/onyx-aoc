@@ -35,7 +35,7 @@ SideRelation :: struct {
     ori  : TO  = TO.N;
 }
 
-TO :: enum (u32) {
+TO :: enum (u8) {
 	N;  R90;  R180;  R270;
 	F; FR90; FR180; FR270;
 }
@@ -338,21 +338,19 @@ main :: proc (args: [] cstr) {
         tid := to_process[0];
         array.delete(^to_process, 0);
 
-        tile_ptr := map.get(^tile_map, tid.match.tile);
-
-        if tid.pos_x < 0 || tid.pos_y < 0 || tid.pos_x >= 12 || tid.pos_y >= 12 do continue;
         if grid[tid.pos_x + 12 * tid.pos_y] != 0 do continue;
         
+        tile_ptr := map.get(^tile_map, tid.match.tile);
         tile_ptr.pos_x = tid.pos_x;
         tile_ptr.pos_y = tid.pos_y;
         grid[tid.pos_x + 12 * tid.pos_y] = tid.match.tile;
 
         apply_orientation(tile_ptr, tid.match.ori);
 
-        if tile_ptr.edges_match.top.tile    != 0 && tid.pos_y >= 1  do array.push(^to_process, tile_pos_state.{ tile_ptr.edges_match.top,    tid.pos_x, tid.pos_y - 1 });
-        if tile_ptr.edges_match.bottom.tile != 0 && tid.pos_y <= 10 do array.push(^to_process, tile_pos_state.{ tile_ptr.edges_match.bottom, tid.pos_x, tid.pos_y + 1 });
-        if tile_ptr.edges_match.left.tile   != 0 && tid.pos_x >= 1  do array.push(^to_process, tile_pos_state.{ tile_ptr.edges_match.left,   tid.pos_x - 1, tid.pos_y });
-        if tile_ptr.edges_match.right.tile  != 0 && tid.pos_x <= 10 do array.push(^to_process, tile_pos_state.{ tile_ptr.edges_match.right,  tid.pos_x + 1, tid.pos_y });
+        if tile_ptr.edges_match.top.tile    != 0 do array.push(^to_process, tile_pos_state.{ tile_ptr.edges_match.top,    tid.pos_x, tid.pos_y - 1 });
+        if tile_ptr.edges_match.bottom.tile != 0 do array.push(^to_process, tile_pos_state.{ tile_ptr.edges_match.bottom, tid.pos_x, tid.pos_y + 1 });
+        if tile_ptr.edges_match.left.tile   != 0 do array.push(^to_process, tile_pos_state.{ tile_ptr.edges_match.left,   tid.pos_x - 1, tid.pos_y });
+        if tile_ptr.edges_match.right.tile  != 0 do array.push(^to_process, tile_pos_state.{ tile_ptr.edges_match.right,  tid.pos_x + 1, tid.pos_y });
     }
 
     forest : [12 * 8 * 12 * 8] u8;

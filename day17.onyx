@@ -29,7 +29,7 @@ proc (a: CubePos, b: CubePos) -> bool #add_overload map.cmp_function {
 get_neighbor_count :: proc (cubes: ^map.Map(CubePos, CubeState), pos: CubePos) -> u32 {
     count := 0;
 
-    for x: -1 .. 2 do for y: -1 .. 2 do for z: -1 .. 2 do for w: -1 .. 2{
+    for x: -1 .. 2 do for y: -1 .. 2 do for z: -1 .. 2 do for w: -1 .. 2 {
         if x == 0 && y == 0 && z == 0 && w == 0 do continue;
         key := CubePos.{ pos.x + x, pos.y + y, pos.z + z, pos.w + w };
         state := map.get(cubes, key, CubeState.{});

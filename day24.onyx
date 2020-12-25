@@ -68,14 +68,14 @@ main :: proc (args: [] cstr) {
 		}
 
 
-		curr := map.get(^grid, loc, Cell.{});	
+		curr := map.get(^grid, loc, Cell.{});
 		map.put(^grid, loc, Cell.{ alive = !curr.alive });
 	}
 
 	// Part 1
 	black_count := 0;
-	for tile_entry: grid.entries {
-		if tile_entry.value.alive do black_count += 1;
+	for ^cell: grid.entries {
+		if cell.value.alive do black_count += 1;
 	}	
 	printf("Black count: %i\n", black_count);
 
@@ -112,17 +112,15 @@ main :: proc (args: [] cstr) {
 		}
 
 		for ^cell: cells_to_consider {
-			state := map.get(^grid, *cell, Cell.{});
-			state.alive = state.next;
-			map.put(^grid, *cell, state);	
+			map.update(^grid, *cell, proc (state: ^Cell) { state.alive = state.next; });
 		}
 
 		array.clear(^cells_to_consider);
 	}
 
 	black_count = 0;
-	for tile_entry: grid.entries {
-		if tile_entry.value.alive do black_count += 1;
+	for ^cell: grid.entries {
+		if cell.value.alive do black_count += 1;
 	}	
 	printf("GOL black count: %i\n", black_count);
 }
